@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+
+.title {
+    font-family: "Righteous";
+    font-weight: 400;
+    font-style: normal;
+    font-size: 60px;
+    margin: 10px;
+}
+  
+.logo {
+    display: flex;   
+}
+
+.send {
+    align-items: flex-end;
+}
