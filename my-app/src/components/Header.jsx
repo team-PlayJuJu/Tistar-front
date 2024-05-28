@@ -2,7 +2,7 @@ import Logo from "./icons/Logo";
 import Send from "./icons/Send";
 
 
-export default function Header(){
+const Header = () => {
     return (
         <>
             <span className="logo">
@@ -14,3 +14,5 @@ export default function Header(){
         </>
     )
 }
+
+export default Header

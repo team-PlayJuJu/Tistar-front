@@ -12,6 +12,9 @@
     display: flex;   
 }
 
+
 .send {
-    align-items: flex-end;
+    width: 333.333px;
+    height: 100px;
+    flex-shrink: 0;
 }
