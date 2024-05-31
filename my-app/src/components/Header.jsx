@@ -1,6 +1,6 @@
 import Logo from "./icons/Logo";
-import Send from "./icons/Send";
-
+import Profile from "./icons/Profile";
+import Sun from "./icons/Sun";
 
 const Header = () => {
     return (
@@ -8,11 +8,12 @@ const Header = () => {
             <span className="logo">
                 <Logo />
                 <p className="title">TISTAR</p>
-                <Send />
                 <p className="send">전송하기</p>
+                <Profile />
+                <Sun />
             </span>
         </>
     )
 }
 
-export default Header
+export default Header;
