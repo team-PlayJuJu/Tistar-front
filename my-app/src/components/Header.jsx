@@ -1,5 +1,7 @@
 import Logo from "./icons/Logo";
 import Profile from "./icons/Profile";
+import Send from "./icons/Send";
+import Send2 from "./icons/Send2";
 import Sun from "./icons/Sun";
 
 const Header = () => {
@@ -8,7 +10,8 @@ const Header = () => {
             <span className="logo">
                 <Logo />
                 <p className="title">TISTAR</p>
-                <p className="send">전송하기</p>
+                <Send2 />
+                <Send />
                 <Profile />
                 <Sun />
             </span>
