@@ -20,6 +20,7 @@ const Header = () => {
                     <Send />
                     <Profile />
                     <Sun />
+                    <SendImage />
                 </Flex>
             </header>
     )
