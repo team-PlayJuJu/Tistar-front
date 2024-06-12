@@ -27,8 +27,6 @@ const SendButton = styled.button`
 `
 
 
-
-
 export default function Send() {
     return (
         <SendButton>
