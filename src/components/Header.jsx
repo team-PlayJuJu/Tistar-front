@@ -15,9 +15,9 @@ const Flex = styled.span`
 const Header = () => {
     return (
         <header>
-            <Flex className="logo">
+            <Flex>
                 <Logo />
-                <p className="title">TISTAR</p>
+                <p>TISTAR</p>
             </Flex>
             <Flex>
                 <div><Send /></div>
