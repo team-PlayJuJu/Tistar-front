@@ -14,8 +14,9 @@ const Container = styled.div`
 
 const LoginForm = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 5rem;
+  flex-direction: column;
 `;
 
 
@@ -52,52 +53,55 @@ const Icon = styled.span`
 const Button = styled.button`
   width: 20rem;
   padding: 0.75rem;
-  background-color: #6c63ff;
+  background-color: ${({ isLogin }) => (isLogin ? '#6c63ff' : 'none')};
   color: white;
+  color: ${({ isLogin }) => (isLogin ? 'white' : '#6c63ff')};
   border: none;
+  border: ${({ isLogin }) => (isLogin ? 'none' : '0.0625rem solid #4200FF')};
   border-radius: 0.5rem;
   cursor: pointer;
   font-size: 1rem;
 `;
 
-const SignupLink = styled.a`
-  margin-top: 1rem;
-  color: #6c63ff;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-`;
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+`
 
 
 const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    navigate('/home');
+    navigate('/Home');
   };
 
   const handleSignup = () => {
-    navigate('/signup');
+    navigate('SignUp')
   };
-
 
 
 
   return (
     <Container>
-
       <LoginForm>
         <Logo />
-        <InputContainer>
-          <Input type="text" placeholder="유저명" />
-          <Icon>📧</Icon>
-        </InputContainer>
-        <InputContainer>
-          <Input type="password" placeholder="비밀번호" />
-          <Icon>🔒</Icon>
-        </InputContainer>
-        <Button onClick={handleLogin}>로그인</Button>
-        <SignupLink onClick={handleSignup}>회원가입</SignupLink>
+        <div>
+          <InputContainer>
+            <Input type="text" placeholder="유저명" />
+            <Icon>📧</Icon>
+          </InputContainer>
+          <InputContainer>
+            <Input type="password" placeholder="비밀번호" />
+            <Icon>🔒</Icon>
+          </InputContainer>
+        </div>
+        <ButtonContainer>
+          <Button isLogin={true} onClick={handleLogin}>로그인</Button>
+          <Button isLogin={false} onClick={handleSignup}>회원가입</Button>
+        </ButtonContainer>
       </LoginForm>
     </Container>
   );
