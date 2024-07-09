@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 import styled from 'styled-components';
 import Logo from './icons/Logo';
 import { useNavigate } from 'react-router-dom';
-
 
 const Container = styled.div`
   display: flex;
@@ -18,8 +18,6 @@ const LoginForm = styled.div`
   gap: 5rem;
   flex-direction: column;
 `;
-
-
 
 const InputContainer = styled.div`
   display: flex;
@@ -54,9 +52,7 @@ const Button = styled.button`
   width: 20rem;
   padding: 0.75rem;
   background-color: ${({ isLogin }) => (isLogin ? '#6c63ff' : 'none')};
-  color: white;
   color: ${({ isLogin }) => (isLogin ? 'white' : '#6c63ff')};
-  border: none;
   border: ${({ isLogin }) => (isLogin ? 'none' : '0.0625rem solid #4200FF')};
   border-radius: 0.5rem;
   cursor: pointer;
@@ -68,21 +64,38 @@ const ButtonContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-`
+`;
 
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 1rem;
+`;
 
 const Login = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    navigate('/Home');
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('${process.env.REACT_APP_API_URL}/user/signin', { username, password });
+      // Assume the response contains a token
+      const { token } = response.data;
+
+      // Store the token in localStorage or cookies
+      localStorage.setItem('token', token);
+
+      // Redirect to home page
+      navigate('/home');
+    } catch (error) {
+      setError('로그인 실패: 유저명이나 비밀번호를 확인하세요.');
+    }
   };
 
   const handleSignup = () => {
-    navigate('SignUp')
+    navigate('/signup');
   };
-
-
 
   return (
     <Container>
@@ -90,14 +103,25 @@ const Login = () => {
         <Logo />
         <div>
           <InputContainer>
-            <Input type="text" placeholder="유저명" />
+            <Input
+              type="text"
+              placeholder="유저명"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
             <Icon>📧</Icon>
           </InputContainer>
           <InputContainer>
-            <Input type="password" placeholder="비밀번호" />
+            <Input
+              type="password"
+              placeholder="비밀번호"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
             <Icon>🔒</Icon>
           </InputContainer>
         </div>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
         <ButtonContainer>
           <Button isLogin={true} onClick={handleLogin}>로그인</Button>
           <Button isLogin={false} onClick={handleSignup}>회원가입</Button>

@@ -1,9 +1,11 @@
 @font-face {
-  font-family: "GowunDodum-Regular";
+  font-family: "SDSamliphopangche_Outline";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts-20-12@1.0/SDSamliphopangche_Outline.woff")
+    format("woff");
   font-weight: normal;
-  src: url("./fonts/GowunDodum-Regular.ttf") format("truetype");
+  font-style: normal;
 }
 
 body {
-  font-family: "GowunDodum-Regular";
+  font-family: "SDSamliphopangche_Outline";
 }
