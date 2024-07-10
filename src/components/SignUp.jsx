@@ -71,6 +71,9 @@ const ErrorMessage = styled.p`
   font-size: 1rem;
 `;
 
+
+
+
 const Login = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -78,25 +81,22 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleSignup = async () => {
     try {
-      const response = await axios.post('${process.env.REACT_APP_API_URL}/user/signin', { username, password });
-      // Assume the response contains a token
-      const { token } = response.data;
+      const signupData = JSON.stringify({ name: username, email: email, pwd: password });
+      const response = await axios.post('https://0b3f-210-218-52-13.ngrok-free.app/auth/signup', signupData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-      // Store the token in localStorage or cookies
-      localStorage.setItem('token', token);
-
-      // Redirect to home page
-      navigate('/home');
+      navigate('/')
     } catch (error) {
-      setError('로그인 실패: 유저명이나 비밀번호를 확인하세요.');
+      console.error('회원가입 오류:', error.response?.data || error.message);
+      setError('회원가입 오류');
     }
   };
 
-  const handleSignup = () => {
-    navigate('/signup');
-  };
 
   return (
     <Container>
@@ -130,7 +130,7 @@ const Login = () => {
         </div>
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <ButtonContainer>
-          <Button isLogin={true} onClick={handleLogin}>로그인</Button>
+          <Button isLogin={true} onClick={handleSignup}>회원가입</Button>
         </ButtonContainer>
       </LoginForm>
     </Container >

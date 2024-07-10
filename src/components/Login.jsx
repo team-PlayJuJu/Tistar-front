@@ -79,19 +79,24 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('${process.env.REACT_APP_API_URL}/user/signin', { username, password });
-      // Assume the response contains a token
-      const { token } = response.data;
+      const loginData = JSON.stringify({ name: username, pwd: password });
+      const response = await axios.post('https://0b3f-210-218-52-13.ngrok-free.app/auth/signin', loginData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-      // Store the token in localStorage or cookies
-      localStorage.setItem('token', token);
+      const { access } = response.data;
 
-      // Redirect to home page
+      localStorage.setItem('token', access);
+
       navigate('/home');
     } catch (error) {
+      console.error('로그인 오류:', error.response?.data || error.message);
       setError('로그인 실패: 유저명이나 비밀번호를 확인하세요.');
     }
   };
+
 
   const handleSignup = () => {
     navigate('/signup');
