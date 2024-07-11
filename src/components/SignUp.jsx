@@ -3,6 +3,7 @@ import axios from 'axios';
 import styled from 'styled-components';
 import Logo from './icons/Logo';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 
 const Container = styled.div`
   display: flex;
@@ -12,7 +13,7 @@ const Container = styled.div`
   background-color: rgb(236, 236, 236);
 `;
 
-const LoginForm = styled.div`
+const LoginForm = styled.form`
   display: flex;
   align-items: center;
   gap: 5rem;
@@ -35,17 +36,6 @@ const Input = styled.input`
   border-radius: 0.5rem 0 0 0.5rem;
   outline: none;
   font-size: 1rem;
-`;
-
-const Icon = styled.span`
-  background-color: #6c63ff;
-  padding: 0.75rem;
-  border-radius: 0 0.5rem 0.5rem 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  color: white;
 `;
 
 const Button = styled.button`
@@ -71,70 +61,76 @@ const ErrorMessage = styled.p`
   font-size: 1rem;
 `;
 
-
-
-
-const Login = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+const SignUp = () => {
+  const { register, handleSubmit, formState: { errors }, watch } = useForm({
+    mode: 'onBlur'
+  });
   const navigate = useNavigate();
 
-  const handleSignup = async () => {
+  const handleSignup = async (data) => {
     try {
-      const signupData = JSON.stringify({ name: username, email: email, pwd: password });
-      const response = await axios.post('https://0b3f-210-218-52-13.ngrok-free.app/auth/signup', signupData, {
+      const signupData = JSON.stringify({ name: data.username, email: data.email, pwd: data.password });
+      await axios.post('https://7e88-210-218-52-13.ngrok-free.app/auth/signup', signupData, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
-
-      navigate('/')
+      navigate('/');
     } catch (error) {
       console.error('회원가입 오류:', error.response?.data || error.message);
       setError('회원가입 오류');
     }
   };
 
-
   return (
     <Container>
-      <LoginForm>
+      <LoginForm onSubmit={handleSubmit(handleSignup)}>
         <Logo />
         <div>
           <InputContainer>
             <Input
               type="text"
               placeholder="유저명"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              {...register('username', { required: '유저명을 입력해주세요' })}
             />
           </InputContainer>
-          <InputContainer>
-            <Input
-              type="email"
-              placeholder="이메일"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </InputContainer>
+          {errors.username && <ErrorMessage>{errors.username.message}</ErrorMessage>}
+          {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
           <InputContainer>
             <Input
               type="password"
               placeholder="비밀번호"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              {...register('password', {
+                required: '비밀번호를 입력해주세요',
+                pattern: {
+                  value: /^(?=.*[a-zA-Z])(?=.*[?!@#$%^*+=-])(?=.*[0-9]).{8,16}$/,
+                  message: '숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요'
+                }
+              })}
             />
           </InputContainer>
+          {errors.password && <ErrorMessage>{errors.password.message}</ErrorMessage>}
+          <InputContainer>
+            <Input
+              type="password"
+              placeholder="비밀번호 확인"
+              {...register('passwordConfirm', {
+                required: '비밀번호 확인을 입력해주세요',
+                validate: (value) =>
+                  watch('password') !== value
+                    ? '비밀번호가 일치하지 않습니다'
+                    : true
+              })}
+            />
+          </InputContainer>
+          {errors.passwordConfirm && <ErrorMessage>{errors.passwordConfirm.message}</ErrorMessage>}
         </div>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
         <ButtonContainer>
-          <Button isLogin={true} onClick={handleSignup}>회원가입</Button>
+          <Button isLogin={true} type="submit">회원가입</Button>
         </ButtonContainer>
       </LoginForm>
-    </Container >
+    </Container>
   );
 };
 
-export default Login;
+export default SignUp;
