@@ -152,7 +152,6 @@ const Home = () => {
         <Overlay isOpen={isModalOpen} onClick={closeModal} />
         <Modal isOpen={isModalOpen}>
           <h2>안녕</h2>
-          <p>content.</p>
           <Button onClick={closeModal}>Close</Button>
         </Modal>
       </Container>
