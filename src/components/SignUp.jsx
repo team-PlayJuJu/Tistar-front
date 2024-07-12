@@ -142,7 +142,7 @@ const SignUp = () => {
                 required: '비밀번호를 입력해주세요',
                 pattern: {
                   value: /^(?=.*[a-zA-Z])(?=.*[?!@#$%^*+=-])(?=.*[0-9]).{8,16}$/,
-                  message: '숫자,영문자,f특수문자 조합으로 8자리 이상 입력해주세요'
+                  message: '숫자, 영문자, 특수문자 조합으로 8자리 이상 입력해주세요'
                 }
               })}
               onFocus={() => document.getElementById('passwordInput').placeholder = ''}
