@@ -91,7 +91,7 @@ const SignUp = () => {
             <Input
               type="text"
               placeholder="유저명"
-              {...register('username', { required: '유저명을 입력해주세요' })}
+              {...register('username', { required: '유저명을 입력해주세요!' })}
             />
           </InputContainer>
           {errors.username && <ErrorMessage>{errors.username.message}</ErrorMessage>}
