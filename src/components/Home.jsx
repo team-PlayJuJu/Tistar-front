@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
-import { useState } from 'react';
+import axios from 'axios';
 
 const lightTheme = {
   background: '#fff',
@@ -27,16 +27,19 @@ const Container = styled.div`
 `;
 
 const Header = styled.header`
-  width: 47.0625rem;
-  height: 3.375rem;
-  flex-shrink: 0;
-  border-radius: 0rem 0rem 1.875rem 1.875rem;
-  background: #D9D9D9;
   display: flex;
+  width: 120rem;
+  height: 4.375rem;
+  padding: 0.6875rem 2.5625rem 0.625rem 2.0625rem;
+  align-items: center;
+  gap: 97.75rem;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  background: #D9D9D9;
+  border-bottom: 0.0625rem solid rgba(128, 128, 128, 0.31);
+  background: #F9F9F9;
   font-size: 1.21213rem;
   justify-content: space-between;
-  align-items: center;
-  padding: 0 1.25rem;
   background-color: ${({ theme }) => theme.headerBackground};
 `;
 
@@ -58,15 +61,7 @@ const Button = styled.button`
 `;
 
 const Profile = styled.div`
-  display: inline-block;
-  border: 0.0625rem solid red;
-  align-items: center;
-  gap: 0.5rem;
-  color: black;
-  font-size: 2rem;
-  position: absolute;
-  top: 3rem;
-  right: 8rem;
+
 `;
 
 const Grid = styled.div`
@@ -90,7 +85,7 @@ const Modal = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   background: white;
-  padding: 9rem;
+  padding: 2rem;
   border-radius: 0.5rem;
   display: ${({ isOpen }) => (isOpen ? 'flex' : 'none')};
   flex-direction: column;
@@ -99,9 +94,6 @@ const Modal = styled.div`
   width: 50%;
   height: 50%;
 `;
-
-
-
 
 const Overlay = styled.div`
   position: fixed;
@@ -116,6 +108,7 @@ const Overlay = styled.div`
 const Home = () => {
   const [theme, setTheme] = useState(lightTheme);
   const [isModalOpen, setModalOpen] = useState(false);
+  const fileInputRef = useRef(null);
 
   const toggleTheme = () => {
     setTheme(theme === lightTheme ? darkTheme : lightTheme);
@@ -123,11 +116,31 @@ const Home = () => {
 
   const openModal = () => {
     setModalOpen(true);
-  }
+  };
 
   const closeModal = () => {
     setModalOpen(false);
-  }
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append('images', file);
+    formData.append('content', "hello");
+
+    try {
+      const response = await axios.post('https://2394-210-218-52-13.ngrok-free.app/post/write', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzIxMzEyOTQ4LCJleHAiOjE3MjEzMTQ3NDh9.ljRFbwc1Z8HR37ReoYiVaY1D-hNeWhEJELfgJU6emPNWxT3vvDFycTzBSQ5sXIQNUaA50p2MrhdPmPWi6wCsfQ'
+        },
+      });
+      setImageUrl(response.data.imageUrl);
+      console.log('Image uploaded successfully:', response.data);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -140,9 +153,7 @@ const Home = () => {
           </Actions>
         </Header>
         <Profile>
-          <div>
-            Profile
-          </div>
+          <div>Profile</div>
         </Profile>
         <Grid>
           {Array.from({ length: 18 }).map((_, index) => (
@@ -152,6 +163,13 @@ const Home = () => {
         <Overlay isOpen={isModalOpen} onClick={closeModal} />
         <Modal isOpen={isModalOpen}>
           <h2>안녕</h2>
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            onChange={handleFileUpload}
+          />
+          <Button onClick={() => fileInputRef.current.click()}>Upload</Button>
           <Button onClick={closeModal}>Close</Button>
         </Modal>
       </Container>

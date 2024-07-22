@@ -94,7 +94,7 @@ const SignUp = () => {
         pwd: data.password
       });
 
-      await axios.post('https://3a15-210-218-52-13.ngrok-free.app/auth/signup', signupData, {
+      await axios.post('https://2394-210-218-52-13.ngrok-free.app/auth/signup', signupData, {
         headers: {
           'Content-Type': 'application/json'
         }
