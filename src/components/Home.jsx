@@ -28,53 +28,63 @@ const Container = styled.div`
 
 const Header = styled.header`
   display: flex;
-  width: 120rem;
-  height: 4.375rem;
-  padding: 0.6875rem 2.5625rem 0.625rem 2.0625rem;
+  width: 100%;
+  padding: 1rem 2rem;
   align-items: center;
-  gap: 97.75rem;
-  flex-shrink: 0;
-  font-size: 1.5rem;
-  background: #D9D9D9;
-  border-bottom: 0.0625rem solid rgba(128, 128, 128, 0.31);
-  background: #F9F9F9;
-  font-size: 1.21213rem;
   justify-content: space-between;
   background-color: ${({ theme }) => theme.headerBackground};
 `;
 
 const Actions = styled.div`
   display: flex;
-  gap: 0.625rem; 
+  gap: 1rem;
 `;
 
 const Button = styled.button`
-  width: 5.625rem;
-  height: 2.5rem;
-  flex-shrink: 0;
+  padding: 0.5rem 1rem;
   border-radius: 2rem;
-  padding: 0.3125rem 0.625rem;
   font-size: 1rem;
   cursor: pointer;
   background-color: ${({ theme }) => theme.buttonBackground};
   color: ${({ theme }) => theme.buttonColor};
 `;
 
-const Profile = styled.div`
+const Tabs = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
 
+const Tab = styled.button`
+  background: none;
+  border: none;
+  font-size: 2.5rem;
+  cursor: pointer;
+  color: ${({ active }) => (active ? 'black' : 'gray')};
+  display: flex;
+  align-items: start;
+
+  &:after {
+    content: ${({ icon }) => `"${icon}"`};
+    margin-left: 0.5rem;
+  }
+`;
+
+const Profile = styled.div`
+  margin-top: 1rem;
 `;
 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  width: 60%;
-  margin-top: 1.25rem;
+  width: 65%;
+  margin-top: 17.5rem;
   gap: 1rem;
 `;
 
 const GridItem = styled.div`
-  width: 90%;
-  padding-bottom: 90%;
+  width: 100%;
+  padding-bottom: 100%;
   background-color: ${({ theme }) => theme.gridItemBackground};
   cursor: pointer;
 `;
@@ -108,6 +118,7 @@ const Overlay = styled.div`
 const Home = () => {
   const [theme, setTheme] = useState(lightTheme);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('최신순');
   const fileInputRef = useRef(null);
 
   const toggleTheme = () => {
@@ -148,12 +159,35 @@ const Home = () => {
         <Header>
           Tistar
           <Actions>
-            <Button>Upload</Button>
-            <Button onClick={toggleTheme}>Light</Button>
+            <Button onClick={openModal}>업로드</Button>
+            <Button onClick={toggleTheme}>{theme === lightTheme ? '다크 모드' : '라이트 모드'}</Button>
           </Actions>
         </Header>
+        <Tabs>
+          <Tab
+            active={activeTab === '최신순'}
+            onClick={() => setActiveTab('최신순')}
+            icon="✨"
+          >
+            최신순
+          </Tab>
+          <Tab
+            active={activeTab === '인기순'}
+            onClick={() => setActiveTab('인기순')}
+            icon="🔥"
+          >
+            인기순
+          </Tab>
+          <Tab
+            active={activeTab === '오래된순'}
+            onClick={() => setActiveTab('오래된순')}
+            icon="⏰"
+          >
+            오래된순
+          </Tab>
+        </Tabs>
         <Profile>
-          <div>Profile</div>
+          <div>프로필</div>
         </Profile>
         <Grid>
           {Array.from({ length: 18 }).map((_, index) => (
@@ -162,15 +196,15 @@ const Home = () => {
         </Grid>
         <Overlay isOpen={isModalOpen} onClick={closeModal} />
         <Modal isOpen={isModalOpen}>
-          <h2>안녕</h2>
+          <h2>안녕하세요</h2>
           <input
             type="file"
             ref={fileInputRef}
             style={{ display: 'none' }}
             onChange={handleFileUpload}
           />
-          <Button onClick={() => fileInputRef.current.click()}>Upload</Button>
-          <Button onClick={closeModal}>Close</Button>
+          <Button onClick={() => fileInputRef.current.click()}>파일 업로드</Button>
+          <Button onClick={closeModal}>닫기</Button>
         </Modal>
       </Container>
     </ThemeProvider>

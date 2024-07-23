@@ -56,17 +56,6 @@ const Input = styled.input`
   }
 `;
 
-const Icon = styled.span`
-  background-color: #6c63ff;
-  padding: 0.75rem;
-  border-radius: 0 0.5rem 0.5rem 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  color: white;
-`;
-
 const Button = styled.button`
   width: 20rem;
   padding: 0.75rem;
