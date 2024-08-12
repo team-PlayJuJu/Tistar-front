@@ -92,7 +92,7 @@ const Login = () => {
     try {
       const loginData = JSON.stringify({ name: username, pwd: password });
       const response = await axios.post(
-        "https://2394-210-218-52-13.ngrok-free.app/auth/signin",
+        "https://ae0f-210-218-52-13.ngrok-free.app/auth/signin",
         loginData,
         {
           headers: {
@@ -102,17 +102,17 @@ const Login = () => {
       );
 
       const { access } = response.data;
-      localStorage.setItem("token", access);
+      localStorage.setItem("accessToken", access);
       navigate("/home");
     } catch (error) {
       console.error("로그인 오류:", error.response?.data || error.message);
       setError("로그인 실패: 유저명이나 비밀번호를 확인하세요.");
 
-      // 에러 발생 시 입력 필드에 에러 스타일 적용
+
       document.getElementById("usernameInput").classList.add("error-border");
       document.getElementById("passwordInput").classList.add("error-border");
 
-      // 1초 후 에러 스타일 제거
+
       setTimeout(() => {
         document.getElementById("usernameInput").classList.remove("error-border");
         document.getElementById("passwordInput").classList.remove("error-border");

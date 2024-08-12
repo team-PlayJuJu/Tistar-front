@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import axios from 'axios';
 
 const lightTheme = {
   background: '#fff',
-  headerBackground: '#f1f1f1',
+  headerBackground: '#F9F9F9',
   gridItemBackground: '#eee',
   buttonBackground: '#ddd',
 };
@@ -12,7 +12,7 @@ const lightTheme = {
 const darkTheme = {
   background: '#1F1E2B',
   color: '#fff',
-  headerBackground: '#D9D9D9',
+  headerBackground: '#3B3865',
   gridItemBackground: '#D9D9D9',
   buttonBackground: '#555',
   buttonColor: '#fff',
@@ -30,6 +30,7 @@ const Header = styled.header`
   display: flex;
   width: 100%;
   padding: 1rem 2rem;
+  font-size: 1.5rem;
   align-items: center;
   justify-content: space-between;
   background-color: ${({ theme }) => theme.headerBackground};
@@ -62,11 +63,11 @@ const Tab = styled.button`
   cursor: pointer;
   color: ${({ active }) => (active ? 'black' : 'gray')};
   display: flex;
-  align-items: start;
+  align-items: center;
 
-  &:after {
+  &::before {
     content: ${({ icon }) => `"${icon}"`};
-    margin-left: 0.5rem;
+    margin-right: 0.5rem;
   }
 `;
 
@@ -121,6 +122,20 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState('최신순');
   const fileInputRef = useRef(null);
 
+  // 컴포넌트가 마운트될 때 로컬 스토리지에서 토큰 가져오기
+  useEffect(() => {
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (accessToken) {
+      console.log('Access Token:', accessToken);
+    }
+
+    if (refreshToken) {
+      console.log('Refresh Token:', refreshToken);
+    }
+  }, []);
+
   const toggleTheme = () => {
     setTheme(theme === lightTheme ? darkTheme : lightTheme);
   };
@@ -140,13 +155,22 @@ const Home = () => {
     formData.append('content', "hello");
 
     try {
-      const response = await axios.post('https://2394-210-218-52-13.ngrok-free.app/post/write', formData, {
+      const response = await axios.post('https://ae0f-210-218-52-13.ngrok-free.app/post/write', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzIxMzEyOTQ4LCJleHAiOjE3MjEzMTQ3NDh9.ljRFbwc1Z8HR37ReoYiVaY1D-hNeWhEJELfgJU6emPNWxT3vvDFycTzBSQ5sXIQNUaA50p2MrhdPmPWi6wCsfQ'
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,  // 로컬 스토리지에서 액세스 토큰 가져오기
         },
       });
-      setImageUrl(response.data.imageUrl);
+
+      // 서버로부터 새로운 토큰이 전달될 경우 로컬 스토리지에 저장
+      const { accessToken, refreshToken } = response.data;
+      if (accessToken) {
+        localStorage.setItem('accessToken', accessToken);
+      }
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+
       console.log('Image uploaded successfully:', response.data);
     } catch (error) {
       console.error('Error uploading image:', error);
