@@ -61,7 +61,7 @@ const Tab = styled.button`
   border: none;
   font-size: 2.5rem;
   cursor: pointer;
-  color: ${({ active }) => (active ? 'black' : 'gray')};
+  color: ${({ active }) => (active ? 'red' : 'gray')};
   display: flex;
   align-items: center;
 
@@ -85,6 +85,8 @@ const Grid = styled.div`
 
 const GridItem = styled.div`
   width: 100%;
+  flex-direction: column;
+  display: flex;
   padding-bottom: 100%;
   background-color: ${({ theme }) => theme.gridItemBackground};
   cursor: pointer;
@@ -116,25 +118,19 @@ const Overlay = styled.div`
   display: ${({ isOpen }) => (isOpen ? 'flex' : 'none')};
 `;
 
+const ImagePreview = styled.img`
+  max-width: 100%;
+  max-height: 100%;
+  margin-top: 1rem;
+`;
+
+
 const Home = () => {
   const [theme, setTheme] = useState(lightTheme);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('최신순');
+  const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 상태
+  const [content, setContent] = useState(''); // 게시글 내용 상태
   const fileInputRef = useRef(null);
-
-  // 컴포넌트가 마운트될 때 로컬 스토리지에서 토큰 가져오기
-  useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-
-    if (accessToken) {
-      console.log('Access Token:', accessToken);
-    }
-
-    if (refreshToken) {
-      console.log('Refresh Token:', refreshToken);
-    }
-  }, []);
 
   const toggleTheme = () => {
     setTheme(theme === lightTheme ? darkTheme : lightTheme);
@@ -146,34 +142,42 @@ const Home = () => {
 
   const closeModal = () => {
     setModalOpen(false);
+    setSelectedImage(null); // 모달을 닫을 때 이미지도 초기화
   };
 
-  const handleFileUpload = async (event) => {
+  // 파일 선택 시 이미지 미리보기 처리
+  const handleFileUpload = (event) => {
     const file = event.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(imageUrl);
+    }
+  };
+
+  // 서버에 게시글 및 이미지 업로드 요청
+  const handleUploadToServer = async () => {
+    const file = fileInputRef.current.files[0]; // 선택된 파일 가져오기
+    if (!file || !content) {
+      alert("내용과 이미지를 모두 입력하세요.");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('images', file);
-    formData.append('content', "hello");
+    formData.append('content', content); // 게시글 내용 추가
+    formData.append('images', file); // 선택된 이미지 추가
 
     try {
-      const response = await axios.post('https://ae0f-210-218-52-13.ngrok-free.app/post/write', formData, {
+      const response = await axios.post('https://4ad6-210-218-52-13.ngrok-free.app/post/write', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,  // 로컬 스토리지에서 액세스 토큰 가져오기
+          'Authorization': `Bearer ${localStorage.getItem('token')}`, // 액세스 토큰
         },
       });
 
-      // 서버로부터 새로운 토큰이 전달될 경우 로컬 스토리지에 저장
-      const { accessToken, refreshToken } = response.data;
-      if (accessToken) {
-        localStorage.setItem('accessToken', accessToken);
-      }
-      if (refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken);
-      }
-
-      console.log('Image uploaded successfully:', response.data);
+      console.log('게시글 및 이미지 업로드 성공:', response.data);
+      closeModal(); // 업로드 후 모달 닫기
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('업로드 중 오류 발생:', error);
     }
   };
 
@@ -187,32 +191,6 @@ const Home = () => {
             <Button onClick={toggleTheme}>{theme === lightTheme ? '다크 모드' : '라이트 모드'}</Button>
           </Actions>
         </Header>
-        <Tabs>
-          <Tab
-            active={activeTab === '최신순'}
-            onClick={() => setActiveTab('최신순')}
-            icon="✨"
-          >
-            최신순
-          </Tab>
-          <Tab
-            active={activeTab === '인기순'}
-            onClick={() => setActiveTab('인기순')}
-            icon="🔥"
-          >
-            인기순
-          </Tab>
-          <Tab
-            active={activeTab === '오래된순'}
-            onClick={() => setActiveTab('오래된순')}
-            icon="⏰"
-          >
-            오래된순
-          </Tab>
-        </Tabs>
-        <Profile>
-          <div>프로필</div>
-        </Profile>
         <Grid>
           {Array.from({ length: 18 }).map((_, index) => (
             <GridItem key={index} onClick={openModal} />
@@ -220,14 +198,24 @@ const Home = () => {
         </Grid>
         <Overlay isOpen={isModalOpen} onClick={closeModal} />
         <Modal isOpen={isModalOpen}>
-          <h2>안녕하세요</h2>
+          <h2>게시글 작성</h2>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="게시글 내용을 입력하세요."
+          />
           <input
             type="file"
             ref={fileInputRef}
             style={{ display: 'none' }}
-            onChange={handleFileUpload}
+            onChange={handleFileUpload} // 파일 선택 시 호출
           />
-          <Button onClick={() => fileInputRef.current.click()}>파일 업로드</Button>
+          <Button onClick={() => fileInputRef.current.click()}>파일 선택</Button>
+
+          {/* 이미지 미리보기 */}
+          {selectedImage && <ImagePreview src={selectedImage} alt="미리보기 이미지" />}
+
+          <Button onClick={handleUploadToServer}>업로드</Button>
           <Button onClick={closeModal}>닫기</Button>
         </Modal>
       </Container>

@@ -35,12 +35,12 @@ const InputContainer = styled.div`
 const Input = styled.input`
   flex: 1;
   padding: 0.75rem;
-  border: 0.125rem solid #ddd; // 두께를 2px로 증가
+  border: 0.125rem solid #ddd; 
   border-radius: 1rem;
   outline: none;
   font-size: 1rem;
   text-align: center;
-  transition: border-color 0.3s, box-shadow 0.3s; // 부드러운 전환 추가
+  transition: border-color 0.3s, box-shadow 0.3s; 
 
   &.error-border {
     border-color: red;
@@ -92,7 +92,7 @@ const Login = () => {
     try {
       const loginData = JSON.stringify({ name: username, pwd: password });
       const response = await axios.post(
-        "https://ae0f-210-218-52-13.ngrok-free.app/auth/signin",
+        "https://4ad6-210-218-52-13.ngrok-free.app/auth/signin",
         loginData,
         {
           headers: {
@@ -102,17 +102,17 @@ const Login = () => {
       );
 
       const { access } = response.data;
-      localStorage.setItem("accessToken", access);
+      localStorage.setItem("token", access);
       navigate("/home");
     } catch (error) {
       console.error("로그인 오류:", error.response?.data || error.message);
       setError("로그인 실패: 유저명이나 비밀번호를 확인하세요.");
 
-
+      // 에러 발생 시 입력 필드에 에러 스타일 적용
       document.getElementById("usernameInput").classList.add("error-border");
       document.getElementById("passwordInput").classList.add("error-border");
 
-
+      // 1초 후 에러 스타일 제거
       setTimeout(() => {
         document.getElementById("usernameInput").classList.remove("error-border");
         document.getElementById("passwordInput").classList.remove("error-border");
