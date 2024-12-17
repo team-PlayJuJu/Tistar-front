@@ -3,31 +3,6 @@ import styled, { ThemeProvider } from 'styled-components';
 import axios from 'axios';
 import Header from './icons/Header';
 
-const lightTheme = {
-  background: '#fff',
-  headerBackground: '#F9F9F9',
-  gridItemBackground: '#eee',
-  buttonBackground: '#ddd',
-  buttonColor: '#000',
-  textareaBackground: '#fff',
-  textareaColor: '#000',
-  inputBackground: '#fff',
-  inputColor: '#000',
-};
-
-const darkTheme = {
-  background: '#1F1E2B',
-  color: '#fff',
-  headerBackground: '#3B3865',
-  gridItemBackground: '#D9D9D9',
-  buttonBackground: '#555',
-  buttonColor: '#fff',
-  textareaBackground: '#333',
-  textareaColor: '#fff',
-  inputBackground: '#333',
-  inputColor: '#fff',
-};
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -35,11 +10,6 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.color};
   min-height: 100vh;
-`;
-
-const Actions = styled.div`
-  display: flex;
-  gap: 1rem;
 `;
 
 const StyledButton = styled.button`
@@ -87,10 +57,6 @@ const Tab = styled.button`
   }
 `;
 
-const Profile = styled.div`
-  margin-top: 1rem;
-`;
-
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -99,14 +65,6 @@ const Grid = styled.div`
   gap: 1rem;
 `;
 
-const GridItem = styled.div`
-  width: 100%;
-  flex-direction: column;
-  display: flex;
-  padding-bottom: 100%;
-  background-color: ${({ theme }) => theme.gridItemBackground};
-  cursor: pointer;
-`;
 
 const Modal = styled.div`
   position: fixed;
@@ -167,10 +125,6 @@ const Home = () => {
   const [sortType, setSortType] = useState('default');
   const [posts, setPosts] = useState([]);
   const fileInputRef = useRef(null);
-
-  const toggleTheme = () => {
-    setTheme(theme === lightTheme ? darkTheme : lightTheme);
-  };
 
   const openModal = () => {
     setModalOpen(true);
