@@ -52,20 +52,31 @@ const Icons = styled.div`
 `;
 
 const Header = ({ onPlusClick }) => {
-    return (
-      <HeaderContainer>
+  const [darkMode, setDarkMode] = useState(false);
+  const [themeIcon, setThemeIcon] = useState("☀️");
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    setThemeIcon(darkMode ? "☀️" : "🌙");
+  };
+
+  return (
+    <>
+      <GlobalStyle darkMode={darkMode} />
+      <HeaderContainer darkMode={darkMode}>
         <StyledLink to="/home">
           <Logo>TISTAR</Logo>
         </StyledLink>
         <Icons>
           <button onClick={onPlusClick}>+</button>
-          <button>☀️</button>
+          <button onClick={toggleDarkMode}>{themeIcon}</button>
           <Link to="/profile">
             <button>👤</button>
           </Link>
         </Icons>
       </HeaderContainer>
-    );
-  };
-  
-  export default Header;
+    </>
+  );
+};
+
+export default Header;

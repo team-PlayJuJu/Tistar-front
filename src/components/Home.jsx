@@ -3,6 +3,31 @@ import styled, { ThemeProvider } from 'styled-components';
 import axios from 'axios';
 import Header from './icons/Header';
 
+const lightTheme = {
+  background: '#fff',
+  headerBackground: '#F9F9F9',
+  gridItemBackground: '#eee',
+  buttonBackground: '#ddd',
+  buttonColor: '#000',
+  textareaBackground: '#fff',
+  textareaColor: '#000',
+  inputBackground: '#fff',
+  inputColor: '#000',
+};
+
+const darkTheme = {
+  background: '#1F1E2B',
+  color: '#fff',
+  headerBackground: '#3B3865',
+  gridItemBackground: '#D9D9D9',
+  buttonBackground: '#555',
+  buttonColor: '#fff',
+  textareaBackground: '#333',
+  textareaColor: '#fff',
+  inputBackground: '#333',
+  inputColor: '#fff',
+};
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -52,7 +77,7 @@ const Tab = styled.button`
   align-items: center;
 
   &::before {
-    content: ${({ icon }) => `"${icon}"`};
+    content: ${({ icon }) => "${icon}"};
     margin-right: 0.5rem;
   }
 `;
@@ -64,7 +89,6 @@ const Grid = styled.div`
   margin-top: 17.5rem;
   gap: 1rem;
 `;
-
 
 const Modal = styled.div`
   position: fixed;
@@ -126,6 +150,10 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const fileInputRef = useRef(null);
 
+  const toggleTheme = () => {
+    setTheme(theme === lightTheme ? darkTheme : lightTheme);
+  };
+
   const openModal = () => {
     setModalOpen(true);
   };
@@ -156,10 +184,10 @@ const Home = () => {
 
     try {
       const response = await axios.post('https://2640-210-218-52-13.ngrok-free.app/post/write', formData, {
-        headers: {
+          'headers': {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        }
       });
 
       console.log('게시글 및 이미지 업로드 성공:', response.data);
