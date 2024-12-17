@@ -183,7 +183,7 @@ const Home = () => {
     formData.append('images', file);
 
     try {
-      const response = await axios.post('https://2640-210-218-52-13.ngrok-free.app/post/write', formData, {
+      const response = await axios.post('https://dd4b-210-218-52-13.ngrok-free.app/post/write', formData, {
           'headers': {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -200,7 +200,7 @@ const Home = () => {
 
   const fetchPosts = async (sortType) => {
     try {
-      const response = await axios.get('https://2640-210-218-52-13.ngrok-free.app/posts', {
+      const response = await axios.get('https://dd4b-210-218-52-13.ngrok-free.app/posts', {
         params: { sortBy: sortType },
       });
       setPosts(response.data.content);

@@ -31,7 +31,7 @@ const HeaderContainer = styled.div`
 const Logo = styled.h1`
   font-size: 20px;
   font-weight: bold;
-  color: inherit; /* 부모 색상 상속 */
+  color: #030153; /* 부모 색상 상속 inherit */
 `;
 
 const StyledLink = styled(Link)`
