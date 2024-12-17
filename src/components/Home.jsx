@@ -73,21 +73,21 @@ const Tab = styled.button`
   font-size: 2.5rem;
   cursor: pointer;
   color: ${({ active }) => (active ? 'red' : 'gray')};
-  display: flex;
-  align-items: center;
-
-  &::before {
-    content: ${({ icon }) => "${icon}"};
-    margin-right: 0.5rem;
-  }
 `;
 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  width: 65%;
-  margin-top: 17.5rem;
   gap: 1rem;
+  width: 65%;
+  margin-top: 2rem;
+`;
+
+const GridItem = styled.img`
+  width: 100%;
+  height: 200px; /* 고정된 높이 */
+  object-fit: cover; /* 이미지 비율 유지하며 채우기 */
+  border-radius: 0.5rem;
 `;
 
 const Modal = styled.div`
@@ -122,7 +122,7 @@ const ImagePreview = styled.img`
   max-height: 100%;
   width: auto;
   height: auto;
-  object-fit: contain; /* 이미지 비율을 유지하며 모달 크기에 맞춤 */
+  object-fit: contain;
   margin-top: 1rem;
 `;
 
@@ -150,14 +150,7 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const fileInputRef = useRef(null);
 
-  const toggleTheme = () => {
-    setTheme(theme === lightTheme ? darkTheme : lightTheme);
-  };
-
-  const openModal = () => {
-    setModalOpen(true);
-  };
-
+  const openModal = () => setModalOpen(true);
   const closeModal = () => {
     setModalOpen(false);
     setSelectedImage(null);
@@ -184,15 +177,26 @@ const Home = () => {
 
     try {
       const response = await axios.post('https://dd4b-210-218-52-13.ngrok-free.app/post/write', formData, {
-          'headers': {
+        headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
 
-      console.log('게시글 및 이미지 업로드 성공:', response.data);
+      // 새 이미지 추가
+      if (posts == null) {
+        setPosts([
+          { id: response.data.id, imageUrl: URL.createObjectURL(file) },
+        ]);
+      } else {
+        setPosts((prevPosts) => [
+          { id: response.data.id, imageUrl: URL.createObjectURL(file) },
+          ...prevPosts,
+        ]);
+      }
+
+      setContent('')
       closeModal();
-      fetchPosts(sortType);
     } catch (error) {
       console.error('업로드 중 오류 발생:', error);
     }
@@ -217,20 +221,24 @@ const Home = () => {
     <ThemeProvider theme={theme}>
       <Container>
         <Header onPlusClick={openModal} />
-
         <Tabs>
           <Tab active={sortType === 'LATEST'} onClick={() => setSortType('LATEST')}>
-            최신순
+            🌟 최신순
           </Tab>
           <Tab active={sortType === 'HEARTS'} onClick={() => setSortType('HEARTS')}>
-            좋아요순
+            🔥 인기순
           </Tab>
           <Tab active={sortType === 'OLDEST'} onClick={() => setSortType('OLDEST')}>
-            오래된순
+            ⏰ 오래된순
           </Tab>
         </Tabs>
-        <Grid />
-
+        {/* 이미지 그리드 */}
+        <Grid>
+          {posts?.map((post) => (
+            <GridItem key={post.id} src={post.imageUrl} alt="게시글 이미지" />
+          ))}
+        </Grid>
+        {/* 모달 */}
         <Overlay isOpen={isModalOpen} onClick={closeModal} />
         <Modal isOpen={isModalOpen}>
           <h2>게시글 작성</h2>
