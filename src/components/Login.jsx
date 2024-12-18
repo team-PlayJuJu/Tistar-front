@@ -92,7 +92,7 @@ const Login = () => {
     try {
       const loginData = JSON.stringify({ name: username, pwd: password });
       const response = await axios.post(
-        "https://dd4b-210-218-52-13.ngrok-free.app/auth/signin",
+        `${process.env.REACT_APP_BASE_URL}/auth/signin`,
         loginData,
         {
           headers: {

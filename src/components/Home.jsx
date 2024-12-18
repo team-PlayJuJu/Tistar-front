@@ -35,6 +35,7 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.color};
   min-height: 100vh;
+  padding-top: 80px;  /* Header가 고정되어 있기 때문에, 상단 여백을 추가 */
 `;
 
 const StyledButton = styled.button`
@@ -64,15 +65,16 @@ const StyledButton = styled.button`
 const Tabs = styled.div`
   display: flex;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 30px;
 `;
 
 const Tab = styled.button`
   background: none;
   border: none;
-  font-size: 2.5rem;
+  font-size: 1.5rem;  /* 글씨 크기 조정 */
+  font-weight: bold;
   cursor: pointer;
-  color: ${({ active }) => (active ? 'red' : 'gray')};
+  color: ${({ active }) => (active ? 'black' : 'gray')};  /* 클릭 시 글씨를 검은색으로 변경 */
 `;
 
 const Grid = styled.div`
@@ -176,7 +178,7 @@ const Home = () => {
     formData.append('images', file);
 
     try {
-      const response = await axios.post('https://dd4b-210-218-52-13.ngrok-free.app/post/write', formData, {
+      const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/post/write`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -204,7 +206,7 @@ const Home = () => {
 
   const fetchPosts = async (sortType) => {
     try {
-      const response = await axios.get('https://dd4b-210-218-52-13.ngrok-free.app/posts', {
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/posts`, {
         params: { sortBy: sortType },
       });
       setPosts(response.data.content);
