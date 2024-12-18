@@ -31,10 +31,29 @@ const ProfilePicture = styled.div`
 const ProfileInfo = styled.div`
   h2 {
     margin: 10px 0 5px;
+    display: inline-block;
+    margin-right: 5px;
   }
 
   p {
     color: gray;
+  }
+`;
+
+const EditButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: #888;
+
+  &:hover {
+    color: #555;
+  }
+
+  &::before {
+    content: "✏️"; /* 연필 아이콘 */
+    font-size: 20px;
   }
 `;
 
@@ -76,10 +95,45 @@ const NoPostsMessage = styled.div`
   margin-top: 20px;
 `;
 
+// Modal styled-components
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  text-align: center;
+  box-sizing: border-box; /* 박스 크기 계산에 padding 포함 */
+`;
+
+const Input = styled.input`
+  margin-bottom: 15px;
+  padding: 10px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box; /* padding을 포함하여 width를 정확하게 계산 */
+`;
+
 const ProfilePage = () => {
   const [posts, setPosts] = useState([]); // 게시물 상태
   const [likedPosts, setLikedPosts] = useState([]); // 좋아요 누른 게시물 상태
   const [showLikes, setShowLikes] = useState(false); // 좋아요 누른 게시물 보기 상태
+  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 열기/닫기 상태
+  const [name, setName] = useState("이건주"); // 프로필 이름 상태
+  const [occupation, setOccupation] = useState("Back-end"); // 프로필 직업 상태
 
   // 좋아요 누른 게시물 보기 버튼 클릭 시
   const handleShowLikedPosts = () => {
@@ -90,6 +144,20 @@ const ProfilePage = () => {
   const handleShowMyPosts = () => {
     setShowLikes(false);
   };
+
+  // 프로필 수정하기 버튼 클릭 시
+  const handleEditProfile = () => {
+    setIsModalOpen(true); // 모달 열기
+  };
+
+  // 프로필 수정 완료 후 모달 닫기
+  const handleSaveProfile = () => {
+    setIsModalOpen(false); // 모달 닫기
+  };
+
+  // 프로필 정보 수정
+  const handleNameChange = (e) => setName(e.target.value);
+  const handleOccupationChange = (e) => setOccupation(e.target.value);
 
   const displayPosts = showLikes ? likedPosts : posts;
 
@@ -102,8 +170,9 @@ const ProfilePage = () => {
       <Profile>
         <ProfilePicture>👤</ProfilePicture>
         <ProfileInfo>
-          <h2>김동학</h2>
-          <p>DevOps Engineer</p>
+          <h2>{name}</h2>
+          <EditButton onClick={handleEditProfile}></EditButton>
+          <p>{occupation}</p>
         </ProfileInfo>
       </Profile>
 
@@ -124,6 +193,30 @@ const ProfilePage = () => {
         <NoPostsMessage>
           {showLikes ? "좋아요 누른 게시물이 없습니다." : "업로드한 게시물이 없습니다."}
         </NoPostsMessage>
+      )}
+
+      {/* 프로필 수정 모달 */}
+      {isModalOpen && (
+        <ModalOverlay>
+          <ModalContent>
+            <h3>프로필 수정</h3>
+            <Input
+              type="text"
+              value={name}
+              onChange={handleNameChange}
+              placeholder="이름"
+            />
+            <Input
+              type="text"
+              value={occupation}
+              onChange={handleOccupationChange}
+              placeholder="전공"
+            />
+            <div>
+              <Button onClick={handleSaveProfile}>저장</Button>
+            </div>
+          </ModalContent>
+        </ModalOverlay>
       )}
     </Container>
   );

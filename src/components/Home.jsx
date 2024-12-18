@@ -148,7 +148,7 @@ const Home = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [content, setContent] = useState('');
-  const [sortType, setSortType] = useState('default');
+  const [sortType, setSortType] = useState('LATEST'); // 기본값을 'LATEST'로 설정
   const [posts, setPosts] = useState([]);
   const fileInputRef = useRef(null);
 
