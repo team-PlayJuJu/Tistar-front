@@ -1,8 +1,16 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import Header from "./icons/Header";
 
-// Styled-components
+// GlobalStyle for dark mode
+const GlobalStyle = createGlobalStyle`
+  body {
+    background-color: ${(props) => (props.darkMode ? "#333" : "#fff")};
+    color: ${(props) => (props.darkMode ? "#fff" : "#000")};
+    transition: background-color 0.3s, color 0.3s; 
+  }
+`;
+
 const Container = styled.div`
   width: 100%;
   margin: 0 auto;
@@ -102,7 +110,7 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${(props) => (props.darkMode ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.5)")};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -110,12 +118,13 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background-color: white;
+  background-color: ${(props) => (props.darkMode ? "#444" : "white")};
   padding: 20px;
   border-radius: 8px;
   width: 300px;
   text-align: center;
   box-sizing: border-box; /* 박스 크기 계산에 padding 포함 */
+  color: ${(props) => (props.darkMode ? "#fff" : "#000")};
 `;
 
 const Input = styled.input`
@@ -134,6 +143,14 @@ const ProfilePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달 열기/닫기 상태
   const [name, setName] = useState("이건주"); // 프로필 이름 상태
   const [occupation, setOccupation] = useState("Back-end"); // 프로필 직업 상태
+  const [darkMode, setDarkMode] = useState(false); // 다크 모드 상태
+  const [themeIcon, setThemeIcon] = useState("☀️"); // 다크 모드 아이콘 상태
+
+  // 다크 모드 토글
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    setThemeIcon(darkMode ? "☀️" : "🌙");
+  };
 
   // 좋아요 누른 게시물 보기 버튼 클릭 시
   const handleShowLikedPosts = () => {
@@ -163,8 +180,10 @@ const ProfilePage = () => {
 
   return (
     <Container>
+      <GlobalStyle darkMode={darkMode} />
+
       {/* 고정된 Header 컴포넌트 */}
-      <Header />
+      <Header onPlusClick={toggleDarkMode} />
 
       {/* 프로필 섹션 */}
       <Profile>
@@ -197,8 +216,8 @@ const ProfilePage = () => {
 
       {/* 프로필 수정 모달 */}
       {isModalOpen && (
-        <ModalOverlay>
-          <ModalContent>
+        <ModalOverlay darkMode={darkMode}>
+          <ModalContent darkMode={darkMode}>
             <h3>프로필 수정</h3>
             <Input
               type="text"
