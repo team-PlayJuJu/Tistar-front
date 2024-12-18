@@ -35,7 +35,7 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.color};
   min-height: 100vh;
-  padding-top: 80px;  /* Header가 고정되어 있기 때문에, 상단 여백을 추가 */
+  padding-top: 80px; /* Header 고정으로 상단 여백 추가 */
 `;
 
 const StyledButton = styled.button`
@@ -71,10 +71,10 @@ const Tabs = styled.div`
 const Tab = styled.button`
   background: none;
   border: none;
-  font-size: 1.5rem;  /* 글씨 크기 조정 */
+  font-size: 1.5rem; /* 글씨 크기 조정 */
   font-weight: bold;
   cursor: pointer;
-  color: ${({ active }) => (active ? 'black' : 'gray')};  /* 클릭 시 글씨를 검은색으로 변경 */
+  color: ${({ active }) => (active ? 'black' : 'gray')}; /* 클릭 시 글씨를 검은색으로 변경 */
 `;
 
 const Grid = styled.div`
@@ -106,7 +106,7 @@ const Modal = styled.div`
   align-items: center;
   justify-content: center;
   width: 50%;
-  height: 50%;
+  height: auto; /* 콘텐츠 크기에 따라 동적으로 변경 */
 `;
 
 const Overlay = styled.div`
@@ -121,7 +121,7 @@ const Overlay = styled.div`
 
 const ImagePreview = styled.img`
   max-width: 100%;
-  max-height: 100%;
+  max-height: 300px; /* 최대 높이를 제한 */
   width: auto;
   height: auto;
   object-fit: contain;
@@ -185,22 +185,17 @@ const Home = () => {
         },
       });
 
-      // 새 이미지 추가
-      if (posts == null) {
-        setPosts([
-          { id: response.data.id, imageUrl: URL.createObjectURL(file) },
-        ]);
-      } else {
-        setPosts((prevPosts) => [
-          { id: response.data.id, imageUrl: URL.createObjectURL(file) },
-          ...prevPosts,
-        ]);
-      }
+      console.log('게시물이 성공적으로 업로드되었습니다.', response.data);
 
-      setContent('')
+      setPosts((prevPosts) => [
+        { id: response.data.id, imageUrl: URL.createObjectURL(file) },
+        ...(prevPosts || []),
+      ]);
+
+      setContent('');
       closeModal();
     } catch (error) {
-      console.error('업로드 중 오류 발생:', error);
+      console.error('업로드 중 오류 발생:', error.response || error.message);
     }
   };
 
@@ -211,7 +206,7 @@ const Home = () => {
       });
       setPosts(response.data.content);
     } catch (error) {
-      console.error('게시물 가져오기 중 오류 발생:', error);
+      console.error('게시물 가져오기 중 오류 발생:', error.response || error.message);
     }
   };
 
@@ -234,13 +229,11 @@ const Home = () => {
             ⏰ 오래된순
           </Tab>
         </Tabs>
-        {/* 이미지 그리드 */}
         <Grid>
           {posts?.map((post) => (
             <GridItem key={post.id} src={post.imageUrl} alt="게시글 이미지" />
           ))}
         </Grid>
-        {/* 모달 */}
         <Overlay isOpen={isModalOpen} onClick={closeModal} />
         <Modal isOpen={isModalOpen}>
           <h2>게시글 작성</h2>
