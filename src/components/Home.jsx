@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import Header from './icons/Header';
 
+// 기본 스타일 설정
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -11,6 +12,7 @@ const Container = styled.div`
   color: #000;
   min-height: 100vh;
   padding-top: 80px;
+  position: relative;  /* 로딩과 에러 메시지가 중앙에 오도록 설정 */
 `;
 
 const Tabs = styled.div`
@@ -45,16 +47,36 @@ const GridItem = styled.img`
 
 // 에러 메시지 스타일
 const ErrorMessage = styled.p`
-  background-color: #ffcccc;
-  color: #ff0000;
-  padding: 15px;
-  border-radius: 8px;
+  color: #444;
   font-size: 1.2rem;
   font-weight: bold;
-  border: 1px solid #ff0000;
-  max-width: 600px;
   text-align: center;
-  margin-top: 20px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  z-index: 10;  /* 에러 메시지가 로딩 스피너 위에 표시되도록 */
+`;
+
+// 로딩 스피너 스타일
+const Loader = styled.div`
+  border: 5px solid #f3f3f3; /* 배경 색 */
+  border-top: 5px solid #3498db; /* 스피너 색 */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;  /* 로딩 스피너가 에러 메시지 뒤에 표시되도록 */
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 `;
 
 const Home = () => {
@@ -77,7 +99,7 @@ const Home = () => {
       setLoading(true);
 
       const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/post`, {
-        params: { sortBy: sortType },  // 'latests'로 정렬 기준 설정
+        params: { sortBy: sortType },
         headers: {
           Authorization: `Bearer ${token}`,
           'ngrok-skip-browser-warning': '69420',
@@ -86,7 +108,6 @@ const Home = () => {
 
       console.log('응답 데이터:', response.data);
 
-      // 응답 데이터에서 'content' 배열을 사용하여 게시물 목록을 업데이트
       if (response.data && Array.isArray(response.data.content)) {
         setPosts(response.data.content);
       } else {
@@ -102,10 +123,9 @@ const Home = () => {
   };
 
   useEffect(() => {
-    fetchPosts(sortType);  // sortType 값에 따라 게시물 불러오기
+    fetchPosts(sortType);
   }, [sortType]);
 
-  // posts 상태에 따른 메시지 처리
   useEffect(() => {
     if (posts.length === 0) {
       setError('게시물이 없습니다.');
@@ -129,17 +149,18 @@ const Home = () => {
         </Tab>
       </Tabs>
 
-      {loading && <p>Loading...</p>}
-      {error && <ErrorMessage>{error}</ErrorMessage>}  {/* 예쁜 에러 메시지 표시 */}
+      {/* 로딩 스피너는 loading 상태일 때만 표시 */}
+      {loading && <Loader />}
+
+      {/* 에러 메시지는 error 상태가 있을 때만 표시 */}
+      {error && !loading && <ErrorMessage>{error}</ErrorMessage>}
 
       <Grid>
         {posts.length > 0 ? (
           posts.map((post) => (
             <GridItem key={post.postId} src={post.imageUrl} alt="게시글 이미지" />
           ))
-        ) : (
-          <p>게시물이 없습니다.</p>
-        )}
+        ) : null}
       </Grid>
     </Container>
   );
