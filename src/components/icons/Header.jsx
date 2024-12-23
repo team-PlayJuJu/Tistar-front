@@ -17,7 +17,7 @@ const HeaderContainer = styled.div`
   left: 0;
   right: 0;
   width: 100%;
-  background-color: ${(props) => (props.darkMode ? "#444" : "white")};
+  background-color: ${(props) => (props.darkMode ? "#3B3865" : "white")};
   color: ${(props) => (props.darkMode ? "#fff" : "#000")};
   z-index: 1000;
   display: flex;
@@ -32,7 +32,8 @@ const HeaderContainer = styled.div`
 const Logo = styled.h1`
   font-size: 20px;
   font-weight: bold;
-  color: #030153; /* 부모 색상 상속 inherit */
+  color: ${(props) => (props.darkMode ? "#fff" : "#030153")}; /* 다크모드에 따른 색상 변경 */
+  transition: color 0.3s;
 `;
 
 const StyledLink = styled(Link)`
@@ -164,7 +165,7 @@ const Header = ({ onPlusClick }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [content, setContent] = useState("");
   const fileInputRef = useRef(null);
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -191,11 +192,11 @@ const Header = ({ onPlusClick }) => {
       alert("내용과 이미지를 모두 입력하세요.");
       return;
     }
-  
+
     const formData = new FormData();
-    formData.append("images", fileInputRef.current.files[0]); // 필드 이름을 'images'로 변경
-    formData.append("content", content); // 게시글 내용 추가
-  
+    formData.append("images", fileInputRef.current.files[0]);
+    formData.append("content", content);
+
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/post/write`,
@@ -203,7 +204,7 @@ const Header = ({ onPlusClick }) => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`, // 토큰 포함
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -215,15 +216,13 @@ const Header = ({ onPlusClick }) => {
       alert("업로드 중 오류가 발생했습니다.");
     }
   };
-  
-  
 
   return (
     <>
       <GlobalStyle darkMode={darkMode} />
       <HeaderContainer darkMode={darkMode}>
         <StyledLink to="/home">
-          <Logo>TISTAR</Logo>
+          <Logo darkMode={darkMode}>TISTAR</Logo> {/* darkMode 전달 */}
         </StyledLink>
         <Icons>
           <button onClick={openModal}>+</button>
@@ -234,14 +233,10 @@ const Header = ({ onPlusClick }) => {
         </Icons>
       </HeaderContainer>
 
-      {/* Overlay 추가: 모달 외부 클릭 시 닫기 기능 */}
       <Overlay isOpen={isModalOpen} onClick={closeModal} />
 
-      {/* 모달 내용 클릭 시 Overlay 클릭 이벤트 전파 방지 */}
       <Modal isOpen={isModalOpen} onClick={(e) => e.stopPropagation()}>
         <h2>게시글 작성</h2>
-
-        {/* 사진 업로드 및 미리보기 */}
         <ImagePreviewContainer>
           {selectedImage ? (
             <ImagePreview src={selectedImage} alt="미리보기 이미지" />
@@ -249,21 +244,15 @@ const Header = ({ onPlusClick }) => {
             <span>이미지를 추가해주세요</span>
           )}
         </ImagePreviewContainer>
-
-        {/* 내용 입력 */}
         <TextArea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="게시글 내용을 입력하세요."
         />
-
-        {/* 파일 선택 버튼과 업로드 버튼을 가로로 배치 */}
         <ButtonGroup>
           <StyledButton onClick={() => fileInputRef.current.click()}>파일 선택</StyledButton>
           <StyledButton onClick={handleUploadToServer}>업로드</StyledButton>
         </ButtonGroup>
-
-        {/* 파일 입력 */}
         <Input type="file" ref={fileInputRef} onChange={handleFileUpload} />
       </Modal>
     </>
