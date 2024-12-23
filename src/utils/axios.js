@@ -1,9 +1,10 @@
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  baseURL: "https://4ad6-210-218-52-13.ngrok-free.app/", // 백엔드 API URL
+  baseURL: process.env.REACT_APP_BASE_URL, // 백엔드 API URL
   headers: {
     "Content-Type": "application/json",
+    'ngrok-skip-browser-warning': '6024',
   },
 });
 

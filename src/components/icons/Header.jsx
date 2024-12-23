@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { Link } from "react-router-dom"; // Link import
+import axios from "axios";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -163,6 +164,7 @@ const Header = ({ onPlusClick }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [content, setContent] = useState("");
   const fileInputRef = useRef(null);
+  const token = localStorage.getItem('token');
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -184,14 +186,37 @@ const Header = ({ onPlusClick }) => {
     }
   };
 
-  const handleUploadToServer = () => {
-    if (!selectedImage || !content) {
+  const handleUploadToServer = async () => {
+    if (!fileInputRef.current.files[0] || !content) {
       alert("내용과 이미지를 모두 입력하세요.");
       return;
     }
-    console.log("업로드 실행");
-    closeModal();
+  
+    const formData = new FormData();
+    formData.append("images", fileInputRef.current.files[0]); // 필드 이름을 'images'로 변경
+    formData.append("content", content); // 게시글 내용 추가
+  
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/post/write`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`, // 토큰 포함
+          },
+        }
+      );
+      console.log("업로드 성공:", response.data);
+      alert("업로드 완료!");
+      closeModal();
+    } catch (error) {
+      console.error("업로드 실패:", error.response?.data || error.message);
+      alert("업로드 중 오류가 발생했습니다.");
+    }
   };
+  
+  
 
   return (
     <>

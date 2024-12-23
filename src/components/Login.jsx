@@ -59,9 +59,9 @@ const Input = styled.input`
 const Button = styled.button`
   width: 20rem;
   padding: 0.75rem;
-  background-color: ${({ isLogin }) => (isLogin ? "#6c63ff" : "none")};
-  color: ${({ isLogin }) => (isLogin ? "white" : "#6c63ff")};
-  border: ${({ isLogin }) => (isLogin ? "none" : "0.0625rem solid #4200FF")};
+  background-color: ${({ islogin }) => (islogin ? "#6c63ff" : "none")};
+  color: ${({ islogin }) => (islogin ? "white" : "#6c63ff")};
+  border: ${({ islogin }) => (islogin ? "none" : "0.0625rem solid #4200FF")};
   border-radius: 0.5rem;
   cursor: pointer;
   font-size: 1rem;
@@ -154,10 +154,10 @@ const Login = () => {
         </div>
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <ButtonContainer>
-          <Button type="submit" isLogin={true}>
+          <Button type="submit" islogin>
             로그인
           </Button>
-          <Button type="button" isLogin={false} onClick={handleSignup}>
+          <Button type="button" onClick={handleSignup}>
             회원가입
           </Button>
         </ButtonContainer>

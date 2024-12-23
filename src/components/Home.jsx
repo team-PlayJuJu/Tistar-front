@@ -7,34 +7,10 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #fff; /* theme 없이 직접 색상 설정 */
-  color: #000; /* text color */
-  min-height: 100vh;
-  padding-top: 80px; /* Header 고정으로 상단 여백 추가 */
-`;
-
-const StyledButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  border-radius: 2rem;
-  font-size: 1rem;
-  cursor: pointer;
-  background-color: #ddd; /* theme 없이 직접 색상 설정 */
+  background-color: #fff;
   color: #000;
-  border: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s;
-
-  &:hover {
-    background-color: #000; /* hover 상태 색상 */
-    color: #ddd;
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-    transform: translateY(-2px);
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
+  min-height: 100vh;
+  padding-top: 80px;
 `;
 
 const Tabs = styled.div`
@@ -49,7 +25,7 @@ const Tab = styled.button`
   font-size: 1.5rem;
   font-weight: bold;
   cursor: pointer;
-  color: ${({ active }) => (active ? 'black' : 'gray')}; /* 클릭 시 글씨를 검은색으로 변경 */
+  color: ${({ active }) => (active ? 'black' : 'gray')};
 `;
 
 const Grid = styled.div`
@@ -67,43 +43,103 @@ const GridItem = styled.img`
   border-radius: 0.5rem;
 `;
 
+// 에러 메시지 스타일
+const ErrorMessage = styled.p`
+  background-color: #ffcccc;
+  color: #ff0000;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: 1px solid #ff0000;
+  max-width: 600px;
+  text-align: center;
+  margin-top: 20px;
+`;
+
 const Home = () => {
-  const [sortType, setSortType] = useState('LATEST');
+  const [sortType, setSortType] = useState('latests');  // 기본값을 'latests'로 설정
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchPosts = async (sortType) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/posts`, {
-        params: { sortBy: sortType },
+      const token = localStorage.getItem('token');
+      console.log('Token:', token);
+
+      if (!token) {
+        console.error('토큰이 없습니다.');
+        setError('토큰이 없습니다.');
+        return;
+      }
+
+      setLoading(true);
+
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/post`, {
+        params: { sortBy: sortType },  // 'latests'로 정렬 기준 설정
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'ngrok-skip-browser-warning': '69420',
+        },
       });
-      setPosts(response.data.content);
+
+      console.log('응답 데이터:', response.data);
+
+      // 응답 데이터에서 'content' 배열을 사용하여 게시물 목록을 업데이트
+      if (response.data && Array.isArray(response.data.content)) {
+        setPosts(response.data.content);
+      } else {
+        console.error('잘못된 응답 데이터 구조:', response.data);
+        setError('잘못된 응답 데이터 구조');
+      }
     } catch (error) {
-      console.error('게시물 가져오기 중 오류 발생:', error.response || error.message);
+      console.error('게시물 가져오기 중 오류 발생:', error);
+      setError('게시물 가져오기 중 오류 발생');
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPosts(sortType);
+    fetchPosts(sortType);  // sortType 값에 따라 게시물 불러오기
   }, [sortType]);
+
+  // posts 상태에 따른 메시지 처리
+  useEffect(() => {
+    if (posts.length === 0) {
+      setError('게시물이 없습니다.');
+    } else {
+      setError(null);
+    }
+  }, [posts]);
 
   return (
     <Container>
       <Header />
       <Tabs>
-        <Tab active={sortType === 'LATEST'} onClick={() => setSortType('LATEST')}>
+        <Tab active={sortType === 'latests'} onClick={() => setSortType('latests')}>
           🌟 최신순
         </Tab>
-        <Tab active={sortType === 'HEARTS'} onClick={() => setSortType('HEARTS')}>
+        <Tab active={sortType === 'hearts'} onClick={() => setSortType('hearts')}>
           🔥 인기순
         </Tab>
-        <Tab active={sortType === 'OLDEST'} onClick={() => setSortType('OLDEST')}>
+        <Tab active={sortType === 'oldests'} onClick={() => setSortType('oldests')}>
           ⏰ 오래된순
         </Tab>
       </Tabs>
+
+      {loading && <p>Loading...</p>}
+      {error && <ErrorMessage>{error}</ErrorMessage>}  {/* 예쁜 에러 메시지 표시 */}
+
       <Grid>
-        {posts?.map((post) => (
-          <GridItem key={post.id} src={post.imageUrl} alt="게시글 이미지" />
-        ))}
+        {posts.length > 0 ? (
+          posts.map((post) => (
+            <GridItem key={post.postId} src={post.imageUrl} alt="게시글 이미지" />
+          ))
+        ) : (
+          <p>게시물이 없습니다.</p>
+        )}
       </Grid>
     </Container>
   );
