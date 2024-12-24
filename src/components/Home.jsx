@@ -40,7 +40,7 @@ const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  width: 65%;
+  width: 75%;
   margin-top: 2rem;
 `;
 
@@ -52,7 +52,7 @@ const GridItem = styled.img`
 `;
 
 const ErrorMessage = styled.p`
-  color: ${(props) => (props.darkMode ? '#ddd' : 'gray')};
+  color: ${(props) => (props.darkMode ? '#ddd' : '#fff')};
   font-size: 1.2rem;
   font-weight: bold;
   text-align: center;
