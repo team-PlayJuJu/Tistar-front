@@ -44,15 +44,41 @@ const Grid = styled.div`
   margin-top: 2rem;
 `;
 
-const GridItem = styled.img`
+const GridItem = styled.div`
+  position: relative;
   width: 100%;
   height: 200px;
-  object-fit: cover;
+  overflow: hidden;
   border-radius: 0.5rem;
 `;
 
+const Image = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const HeartIcon = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 25px;  /* 하트 크기 줄이기 */
+  color: ${(props) => (props.filled ? 'red' : 'white')};
+  cursor: pointer;
+  z-index: 1;
+`;
+
+const LikeCount = styled.span`
+  position: absolute;
+  top: 10px;
+  right: 45px;  /* 하트 옆에 숫자가 위치하도록 조정 */
+  font-size: 20px;
+  color: white;
+  z-index: 1;
+`;
+
 const ErrorMessage = styled.p`
-  color: ${(props) => (props.darkMode ? '#ddd' : '#fff')};
+  color: gray;
   font-size: 1.2rem;
   font-weight: bold;
   text-align: center;
@@ -74,12 +100,14 @@ const Loader = styled.div`
 `;
 
 const Home = () => {
-  const [sortType, setSortType] = useState('latests'); // 기본값을 'latests'로 설정
+  const [sortType, setSortType] = useState('latests');
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [darkMode, setDarkMode] = useState(false); // 다크 모드 상태
-  const [themeIcon, setThemeIcon] = useState('☀️'); // 테마 아이콘
+  const [darkMode, setDarkMode] = useState(false);
+  const [themeIcon, setThemeIcon] = useState('☀️');
+  const [likedPosts, setLikedPosts] = useState([]); // 좋아요한 게시물 저장
+  const [likeCounts, setLikeCounts] = useState({}); // 게시물별 좋아요 숫자 저장
 
   const fetchPosts = async (sortType) => {
     try {
@@ -101,6 +129,12 @@ const Home = () => {
 
       if (response.data && Array.isArray(response.data.content)) {
         setPosts(response.data.content);
+        // 초기 좋아요 카운트 세팅
+        const initialLikeCounts = response.data.content.reduce((acc, post) => {
+          acc[post.postId] = post.likes || 0;
+          return acc;
+        }, {});
+        setLikeCounts(initialLikeCounts);
       } else {
         setError('잘못된 응답 데이터 구조');
       }
@@ -118,6 +152,60 @@ const Home = () => {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     setThemeIcon(darkMode ? '☀️' : '🌙');
+  };
+
+  const handleLikeToggle = async (postId) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('토큰이 없습니다.');
+      }
+
+      // 이미 좋아요가 눌렸는지 확인하고, 그에 따라 POST 또는 DELETE 요청을 보냄
+      if (likedPosts.includes(postId)) {
+        // 좋아요 취소: DELETE 요청
+        await axios.delete(`${process.env.REACT_APP_BASE_URL}/hearts`, {
+          params: { postId },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // 로컬 상태에서 좋아요 취소
+        setLikedPosts((prev) => prev.filter((id) => id !== postId));
+
+        // 좋아요 카운트 감소
+        setLikeCounts((prevCounts) => {
+          const currentLikes = prevCounts[postId] || 0;
+          return {
+            ...prevCounts,
+            [postId]: currentLikes - 1,
+          };
+        });
+      } else {
+        // 좋아요 등록: POST 요청
+        await axios.post(`${process.env.REACT_APP_BASE_URL}/hearts`, null, {
+          params: { postId },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // 로컬 상태에서 좋아요 등록
+        setLikedPosts((prev) => [...prev, postId]);
+
+        // 좋아요 카운트 증가
+        setLikeCounts((prevCounts) => {
+          const currentLikes = prevCounts[postId] || 0;
+          return {
+            ...prevCounts,
+            [postId]: currentLikes + 1,
+          };
+        });
+      }
+    } catch (error) {
+      console.error('좋아요 처리 중 오류 발생:', error);
+    }
   };
 
   return (
@@ -142,7 +230,18 @@ const Home = () => {
       <Grid>
         {posts.length > 0 &&
           posts.map((post) => (
-            <GridItem key={post.postId} src={post.imageUrl} alt="게시글 이미지" />
+            <GridItem key={post.postId}>
+              <Image src={post.imageUrl} alt="게시글 이미지" />
+              <HeartIcon
+                filled={likedPosts.includes(post.postId)}
+                onClick={() => handleLikeToggle(post.postId)}
+              >
+                {likedPosts.includes(post.postId) ? '❤️' : '🤍'}
+              </HeartIcon>
+              {likeCounts[post.postId] > 0 && (
+                <LikeCount darkMode={darkMode}>{likeCounts[post.postId]}</LikeCount>
+              )}
+            </GridItem>
           ))}
       </Grid>
     </Container>
