@@ -106,8 +106,6 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [themeIcon, setThemeIcon] = useState('☀️');
-  const [likedPosts, setLikedPosts] = useState([]); // 좋아요한 게시물 저장
-  const [likeCounts, setLikeCounts] = useState({}); // 게시물별 좋아요 숫자 저장
 
   const fetchPosts = async (sortType) => {
     try {
@@ -128,13 +126,25 @@ const Home = () => {
       });
 
       if (response.data && Array.isArray(response.data.content)) {
-        setPosts(response.data.content);
-        // 초기 좋아요 카운트 세팅
-        const initialLikeCounts = response.data.content.reduce((acc, post) => {
-          acc[post.postId] = post.likes || 0;
-          return acc;
-        }, {});
-        setLikeCounts(initialLikeCounts);
+        const postsWithHeartData = await Promise.all(
+          response.data.content.map(async (post) => {
+            const heartResponse = await axios.get(`${process.env.REACT_APP_BASE_URL}/hearts`, {
+              params: { postId: post.postId },
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'ngrok-skip-browser-warning': '69420',
+              },
+            });
+
+            return {
+              ...post,
+              isHeart: heartResponse.data.isHeart,
+              heartCount: heartResponse.data.HeartCount,
+            };
+          })
+        );
+
+        setPosts(postsWithHeartData);
       } else {
         setError('잘못된 응답 데이터 구조');
       }
@@ -161,48 +171,34 @@ const Home = () => {
         throw new Error('토큰이 없습니다.');
       }
 
-      // 이미 좋아요가 눌렸는지 확인하고, 그에 따라 POST 또는 DELETE 요청을 보냄
-      if (likedPosts.includes(postId)) {
-        // 좋아요 취소: DELETE 요청
+      const postIndex = posts.findIndex((post) => post.postId === postId);
+      const updatedPosts = [...posts];
+
+      if (posts[postIndex].isHeart) {
+        // 좋아요 취소
         await axios.delete(`${process.env.REACT_APP_BASE_URL}/hearts`, {
           params: { postId },
           headers: {
             Authorization: `Bearer ${token}`,
+            'ngrok-skip-browser-warning': '69420',
           },
         });
-
-        // 로컬 상태에서 좋아요 취소
-        setLikedPosts((prev) => prev.filter((id) => id !== postId));
-
-        // 좋아요 카운트 감소
-        setLikeCounts((prevCounts) => {
-          const currentLikes = prevCounts[postId] || 0;
-          return {
-            ...prevCounts,
-            [postId]: currentLikes - 1,
-          };
-        });
+        updatedPosts[postIndex].isHeart = false;
+        updatedPosts[postIndex].heartCount -= 1;
       } else {
-        // 좋아요 등록: POST 요청
+        // 좋아요 등록
         await axios.post(`${process.env.REACT_APP_BASE_URL}/hearts`, null, {
           params: { postId },
           headers: {
             Authorization: `Bearer ${token}`,
+            'ngrok-skip-browser-warning': '69420',
           },
         });
-
-        // 로컬 상태에서 좋아요 등록
-        setLikedPosts((prev) => [...prev, postId]);
-
-        // 좋아요 카운트 증가
-        setLikeCounts((prevCounts) => {
-          const currentLikes = prevCounts[postId] || 0;
-          return {
-            ...prevCounts,
-            [postId]: currentLikes + 1,
-          };
-        });
+        updatedPosts[postIndex].isHeart = true;
+        updatedPosts[postIndex].heartCount += 1;
       }
+
+      setPosts(updatedPosts);
     } catch (error) {
       console.error('좋아요 처리 중 오류 발생:', error);
     }
@@ -233,13 +229,13 @@ const Home = () => {
             <GridItem key={post.postId}>
               <Image src={post.imageUrl} alt="게시글 이미지" />
               <HeartIcon
-                filled={likedPosts.includes(post.postId)}
+                filled={post.isHeart}
                 onClick={() => handleLikeToggle(post.postId)}
               >
-                {likedPosts.includes(post.postId) ? '❤️' : '🤍'}
+                {post.isHeart ? '❤️' : '🤍'}
               </HeartIcon>
-              {likeCounts[post.postId] > 0 && (
-                <LikeCount darkMode={darkMode}>{likeCounts[post.postId]}</LikeCount>
+              {post.heartCount > 0 && (
+                <LikeCount darkMode={darkMode}>{post.heartCount}</LikeCount>
               )}
             </GridItem>
           ))}

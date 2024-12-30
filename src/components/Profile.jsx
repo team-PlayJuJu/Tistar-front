@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import Header from "./icons/Header";
 import axios from "axios";
+import Header from "./icons/Header";
 
 // GlobalStyle for dark mode
 const GlobalStyle = createGlobalStyle`
@@ -107,10 +107,11 @@ const NoPostsMessage = styled.div`
 
 const ProfilePage = () => {
   const [posts, setPosts] = useState([]);
+  const [likedPosts, setLikedPosts] = useState([]); // 좋아요한 게시물 상태
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [themeIcon, setThemeIcon] = useState("☀️");
-  const [showLikes, setShowLikes] = useState(false);
+  const [showLikes, setShowLikes] = useState(false); // 좋아요 게시물 보기 여부
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -146,9 +147,56 @@ const ProfilePage = () => {
     }
   };
 
+  // 좋아요한 게시물만 가져오는 함수
+  const fetchLikedPosts = async () => {
+    setShowLikes(true); // 좋아요 게시물 보기로 전환
+    setError(null);
+    setPosts([]); // 기존 게시물 초기화
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("토큰이 없습니다.");
+        return;
+      }
+
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/post`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "69420",
+        },
+      });
+
+      if (response.data && Array.isArray(response.data.content)) {
+        const likedPostsWithDetails = await Promise.all(
+          response.data.content.map(async (post) => {
+            const heartResponse = await axios.get(`${process.env.REACT_APP_BASE_URL}/hearts`, {
+              params: { postId: post.postId },
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "69420",
+              },
+            });
+
+            return {
+              ...post,
+              isHeart: heartResponse.data.isHeart,
+              heartCount: heartResponse.data.HeartCount,
+            };
+          })
+        );
+
+        setLikedPosts(likedPostsWithDetails);
+      } else {
+        setError("잘못된 응답 데이터 구조");
+      }
+    } catch (error) {
+      setError("좋아요 게시물 가져오기 중 오류 발생");
+    }
+  };
+
   const showLikedPosts = () => {
-    setShowLikes(true);
-    setPosts([]); // 좋아요 표시 시 기존 게시물 초기화
+    fetchLikedPosts(); // 좋아요한 게시물만 가져오기
   };
 
   return (
@@ -174,7 +222,15 @@ const ProfilePage = () => {
 
       {/* 게시물 그리드 */}
       {showLikes ? (
-        <NoPostsMessage>좋아요를 누른 게시물이 없습니다.</NoPostsMessage>
+        likedPosts.length > 0 ? (
+          <Grid>
+            {likedPosts.map((post) => (
+              <GridItem key={post.postId} src={post.imageUrl} alt="게시물 이미지" />
+            ))}
+          </Grid>
+        ) : (
+          <NoPostsMessage>좋아요를 누른 게시물이 없습니다.</NoPostsMessage>
+        )
       ) : posts.length > 0 ? (
         <Grid>
           {posts.map((post) => (
